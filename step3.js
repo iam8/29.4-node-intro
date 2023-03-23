@@ -88,7 +88,6 @@ async function webCat(url, outFilePath) {
 
 // MAIN -------------------------------------------------------------------------------------------
 
-// Retrieve relevant args from command line
 const args = process.argv.slice(2);
 
 let outFile;
@@ -107,21 +106,3 @@ if (args[0] == "--out") {
 if (pathOrUrl) {
     isValidUrl(pathOrUrl) ? webCat(pathOrUrl, outFile) : cat(pathOrUrl, outFile);
 }
-
-// Tests
-
-// Failures
-// node step3.js
-// node step3.js --out
-// node step3.js --out output.txt
-// node step3.js --out output.txt fhsdjh
-// node step3.js --out outputweb.txt https://googlehsjdhsj.com
-// node step3.js onefsdfs.txt
-// node step3.js https://googleshdjshdjs.com
-
-
-// Successes
-// node step3.js --out output.txt one.txt
-// node step3.js --out outputweb.txt https://google.com
-// node step3.js one.txt
-// node step3.js https://google.com
