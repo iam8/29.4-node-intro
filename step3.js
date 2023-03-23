@@ -7,9 +7,8 @@ const axios = require("axios");
 
 // HELPERS ----------------------------------------------------------------------------------------
 
+/** Return true if the given string is a valid URL; false otherwise. */
 function isValidUrl(string) {
-
-    // Determine if the given string is a valid URL pattern
 
     try {
         new URL(string);
@@ -20,74 +19,68 @@ function isValidUrl(string) {
 }
 
 
+/** Fetch and return the HTML data from the given URL. */
+async function getHtmlData(url) {
+
+    let htmlData;
+
+    try {
+        htmlData = await axios.get(url);
+    } catch (error) {
+        console.log(`Error fetching ${url}: ${error.cause}`);
+        process.exit(1);
+    }
+
+    return htmlData;
+}
+
+
+/** Write to outFilePath if given; otherwise print data to console. */
+function handleOutput(data, outFilePath) {
+    if (outFilePath) {
+
+        fs.writeFile(outFilePath, data, "utf8", function(err) {
+            if (err) {
+                console.log(`Couldn't write to ${outFilePath}: ${err}`);
+                process.exit(1);
+            }
+        });
+
+    } else {
+        console.log(data);
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 
 
 // CAT FUNCTIONS ----------------------------------------------------------------------------------
 
-function cat(path) {
+/** Read data from the file at the given path.
+ * - Write the data to the file at outFilePath if argument given.
+ * - Otherwise, print the data to console.
+ */
+function cat(path, outFilePath) {
 
     fs.readFile(path, "utf8", (err, data) => {
         if (err) {
-            console.log(err);
+            console.log(`Couldn't read ${path}: ${err}`);
             process.exit(1);
         }
 
-        console.log(data);
-    })
+        handleOutput(data, outFilePath);
+    });
 }
 
 
-function catWrite(path, outFilePath) {
+/** Fetch the HTML data from the given URL.
+ * - Write the data to the file at outFilePath if argument given.
+ * - Otherwise, print the data to console.
+ */
+async function webCat(url, outFilePath) {
 
-    fs.readFile(path, "utf8", (err, data) => {
-        if (err) {
-            console.log(err);
-            process.exit(1);
-        }
-
-        fs.writeFile(outFilePath, data, "utf8", function(err) {
-            if (err) {
-                console.log(err);
-                process.exit(1);
-            }
-        })
-    })
-}
-
-
-async function webCat(url) {
-
-    let htmlData;
-
-    try {
-        htmlData = await axios.get(url);
-    } catch (error) {
-        console.log(error.cause);
-        process.exit(1);
-    }
-
-    console.log(htmlData.data);
-}
-
-
-async function webCatWrite(url, outFilePath) {
-
-    let htmlData;
-
-    try {
-        htmlData = await axios.get(url);
-    } catch (error) {
-        console.log(error.cause);
-        process.exit(1);
-    }
-
-    fs.writeFile(outFilePath, htmlData.data, "utf8", function(err) {
-        if (err) {
-            console.log(err);
-            process.exit(1);
-        }
-    })
+    const htmlData = await getHtmlData(url);
+    handleOutput(htmlData.data, outFilePath);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -101,24 +94,18 @@ const args = process.argv.slice(2);
 let outFile;
 let pathOrUrl;
 
-if (args.length > 0) {
+if (args[0] == "--out") {
 
-    if (args[0] == "--out") {
-        outFile = args[1];
-        pathOrUrl = args[2];
+    outFile = args[1];
+    pathOrUrl = args[2];
 
-        if (outFile && pathOrUrl) {
+} else {
 
-            // Write to output file
-            isValidUrl(pathOrUrl) ? webCatWrite(pathOrUrl, outFile) : catWrite(pathOrUrl, outFile);
-        }
-    } else {
+    pathOrUrl = args[0];
+}
 
-        pathOrUrl = args[0];
-
-        // Just display output (no file writing)
-        isValidUrl(pathOrUrl) ? webCat(pathOrUrl) : cat(pathOrUrl);
-    }
+if (pathOrUrl) {
+    isValidUrl(pathOrUrl) ? webCat(pathOrUrl, outFile) : cat(pathOrUrl, outFile);
 }
 
 // Tests
