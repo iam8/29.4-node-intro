@@ -20,15 +20,31 @@ function cat(path) {
 
 async function webCat(url) {
 
-    const htmlData = await axios.get(url);
+    let htmlData;
+
+    try {
+        htmlData = await axios.get(url);
+    } catch (error) {
+        console.log(error.cause);
+        process.exit(1);
+    }
+
     console.log(htmlData.data);
 }
 
 
-// const path = process.argv[2];
+const pathOrUrl = process.argv[2];
 
-// if (path) {
-//     cat(path);
-// }
+if (pathOrUrl) {
+    let isValidUrl;
 
-webCat("http://google.com");
+    // Determine if arg is a valid URL (pattern)
+    try {
+        new URL(pathOrUrl);
+        isValidUrl = true;
+    } catch (error) {
+        isValidUrl = false;
+    }
+
+    isValidUrl ? webCat(pathOrUrl) : cat(pathOrUrl);
+}
