@@ -2,6 +2,7 @@
 // Exercise 29.4 - Node Intro
 
 const fs = require('fs');
+const axios = require("axios");
 
 
 function cat(path) {
@@ -17,8 +18,17 @@ function cat(path) {
 }
 
 
-const path = process.argv[2];
+async function webCat(url) {
 
-if (path) {
-    cat(path);
+    const htmlData = await axios.get(url);
+    console.log(htmlData.data);
 }
+
+
+// const path = process.argv[2];
+
+// if (path) {
+//     cat(path);
+// }
+
+webCat("http://google.com");
