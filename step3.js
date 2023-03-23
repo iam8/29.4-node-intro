@@ -5,6 +5,26 @@ const fs = require('fs');
 const axios = require("axios");
 
 
+// HELPERS ----------------------------------------------------------------------------------------
+
+function isValidUrl(string) {
+
+    // Determine if the given string is a valid URL pattern
+
+    try {
+        new URL(string);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+
+// ------------------------------------------------------------------------------------------------
+
+
+// CAT FUNCTIONS ----------------------------------------------------------------------------------
+
 function cat(path) {
 
     fs.readFile(path, "utf8", (err, data) => {
@@ -70,19 +90,10 @@ async function webCatWrite(url, outFilePath) {
     })
 }
 
+// ------------------------------------------------------------------------------------------------
 
-function isValidUrl(string) {
 
-    // Determine if the given string is a valid URL pattern
-
-    try {
-        new URL(string);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
+// MAIN -------------------------------------------------------------------------------------------
 
 // Retrieve relevant args from command line
 const args = process.argv.slice(2);
@@ -117,7 +128,7 @@ if (args.length > 0) {
 // node step3.js --out
 // node step3.js --out output.txt
 // node step3.js --out output.txt fhsdjh
-// node step3.js --out outputweb2.txt https://googlehsjdhsj.com
+// node step3.js --out outputweb.txt https://googlehsjdhsj.com
 // node step3.js onefsdfs.txt
 // node step3.js https://googleshdjshdjs.com
 
